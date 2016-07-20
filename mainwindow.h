@@ -1,4 +1,4 @@
-#ifndef MAINWINDOW_H
+﻿#ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
 #include <QMainWindow>
@@ -18,15 +18,15 @@ public:
     ~MainWindow();
 	void initWindow();
     void openThePort(unsigned int portNumber);
-
+	void dataRecievd(char *recievd);
 
 private:
     Ui::MainWindow *ui;
     portselect portSelectForm;
-    CSerialPort ThePort;
+	CSerialPort ThePort;
 private slots:
     /*打开选择端口界面*/
-    void openPortSelectUIslot();
+	void openPortSelectUISlot();
     void closeThePortSlot();
 };
 

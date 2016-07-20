@@ -1,4 +1,4 @@
-#include "dbcon.h"
+﻿#include "dbcon.h"
 #include <QString>
 #include <QStringList>
 #include <QtSql>

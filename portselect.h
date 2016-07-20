@@ -1,4 +1,4 @@
-#ifndef PORTSELECT_H
+﻿#ifndef PORTSELECT_H
 #define PORTSELECT_H
 
 #include <QWidget>

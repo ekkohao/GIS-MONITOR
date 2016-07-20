@@ -1,4 +1,4 @@
-#ifndef _DBCON_H_
+ï»¿#ifndef _DBCON_H_
 #define _DBCON_H_
 #include <QString>
 #include <QStringList>
@@ -11,14 +11,14 @@ public:
     ~dbcon();
     bool open();
     void close();
-    /*»ñÈ¡ĞèÒª·¢ËÍµÄÊÖ»úºÅÁĞ±í£¬ÎŞ·µ»Øflase*/
+    /*è·å–éœ€è¦å‘é€çš„æ‰‹æœºå·åˆ—è¡¨ï¼Œæ— è¿”å›flase*/
 	bool dbcon::get_phonenumbers(QStringList &phoneNumberList);
 private:
-    /*±£´æ²éÑ¯Óï¾ä*/
+    /*ä¿å­˜æŸ¥è¯¢è¯­å¥*/
     QString queries;
-    /*Êı¾İ¿â¾ä±ú*/
+    /*æ•°æ®åº“å¥æŸ„*/
     QSqlDatabase db;
-    /*±£´æÊı¾İ¿âÊÇ·ñÁ´½ÓµÄ×´Ì¬*/
+    /*ä¿å­˜æ•°æ®åº“æ˜¯å¦é“¾æ¥çš„çŠ¶æ€*/
     bool isopen;
 };
 

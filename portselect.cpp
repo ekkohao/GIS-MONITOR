@@ -1,4 +1,4 @@
-#include "portselect.h"
+﻿#include "portselect.h"
 #include "ui_portselect.h"
 #include <Windows.h>
 #include <QString>

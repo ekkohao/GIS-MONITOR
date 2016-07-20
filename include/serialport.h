@@ -1,12 +1,12 @@
-#ifndef _SERIALPORT_H_
+﻿#ifndef _SERIALPORT_H_
 #define _SERIALPORT_H_
 
 #include <Windows.h>
 
-/** ����ͨ����
+/** 串口通信类
 *
-*  ����ʵ���˶Դ��ڵĻ�������
-*  �����������ָ�����ڵ����ݡ�����ָ�����ݵ�����
+*  本类实现了对串口的基本操作
+*  例如监听发到指定串口的数据、发送指定数据到串口
 */
 class CSerialPort
 {
@@ -16,129 +16,130 @@ public:
 
 public:
 
-	/** ��ʼ�����ں���
+	/** 初始化串口函数
 	*
-	*  @param:  UINT portNo ���ڱ��,Ĭ��ֵΪ1,��COM1,ע��,������Ҫ����9
-	*  @param:  UINT baud   ������,Ĭ��Ϊ9600
-	*  @param:  char parity �Ƿ������żУ��,'Y'��ʾ��Ҫ��żУ��,'N'��ʾ����Ҫ��żУ��
-	*  @param:  UINT databits ����λ�ĸ���,Ĭ��ֵΪ8������λ
-	*  @param:  UINT stopsbits ֹͣλʹ�ø�ʽ,Ĭ��ֵΪ1
-	*  @param:  DWORD dwCommEvents Ĭ��ΪEV_RXCHAR,��ֻҪ�շ�����һ���ַ�,�����һ���¼�
-	*  @return: bool  ��ʼ���Ƿ�ɹ�
-	*  @note:   ��ʹ�����������ṩ�ĺ���ǰ,���ȵ��ñ��������д��ڵĳ�ʼ��
-	*���������� \n�������ṩ��һЩ���õĴ��ڲ�������,����Ҫ����������ϸ��DCB����,��ʹ�����غ���
-	*           \n������������ʱ���Զ��رմ���,�������ִ�йرմ���
+	*  @param:  UINT portNo 串口编号,默认值为1,即COM1,注意,尽量不要大于9
+	*  @param:  UINT baud   波特率,默认为9600
+	*  @param:  char parity 是否进行奇偶校验,'Y'表示需要奇偶校验,'N'表示不需要奇偶校验
+	*  @param:  UINT databits 数据位的个数,默认值为8个数据位
+	*  @param:  UINT stopsbits 停止位使用格式,默认值为1
+	*  @param:  DWORD dwCommEvents 默认为EV_RXCHAR,即只要收发任意一个字符,则产生一个事件
+	*  @return: bool  初始化是否成功
+	*  @note:   在使用其他本类提供的函数前,请先调用本函数进行串口的初始化
+	*　　　　　 \n本函数提供了一些常用的串口参数设置,若需要自行设置详细的DCB参数,可使用重载函数
+	*           \n本串口类析构时会自动关闭串口,无需额外执行关闭串口
 	*  @see:
 	*/
     bool InitPort(UINT  portNo = 1, UINT  baud = CBR_115200, char  parity = 'N', UINT  databits = 8,
 		UINT  stopsbits = 1, DWORD dwCommEvents = EV_RXCHAR);
 
-	/** ���ڳ�ʼ������
+	/** 串口初始化函数
 	*
-	*  �������ṩֱ�Ӹ���DCB�������ô��ڲ���
+	*  本函数提供直接根据DCB参数设置串口参数
 	*  @param:  UINT portNo
 	*  @param:  const LPDCB & plDCB
-	*  @return: bool  ��ʼ���Ƿ�ɹ�
-	*  @note:   �������ṩ�û��Զ���ش��ڳ�ʼ������
+	*  @return: bool  初始化是否成功
+	*  @note:   本函数提供用户自定义地串口初始化参数
 	*  @see:
 	*/
 	bool InitPort(UINT  portNo, const LPDCB& plDCB);
 
-	/** ���������߳�
+	/** 开启监听线程
 	*
-	*  �������߳���ɶԴ������ݵļ���,�������յ������ݴ�ӡ����Ļ���
-	*  @return: bool  �����Ƿ�ɹ�
-	*  @note:   ���߳��Ѿ����ڿ���״̬ʱ,����flase
+	*  本监听线程完成对串口数据的监听,并将接收到的数据打印到屏幕输出
+	*  @return: bool  操作是否成功
+	*  @note:   当线程已经处于开启状态时,返回flase
 	*  @see:
 	*/
 	bool OpenListenThread();
 
-	/** �رռ����߳�
+	/** 关闭监听线程
 	*
 	*
-	*  @return: bool  �����Ƿ�ɹ�
-	*  @note:   ���ñ�������,�������ڵ��߳̽��ᱻ�ر�
+	*  @return: bool  操作是否成功
+	*  @note:   调用本函数后,监听串口的线程将会被关闭
 	*  @see:
 	*/
 	bool CloseListenTread();
 
-	/** �򴮿�д����
+	/** 向串口写数据
 	*
-	*  ���������е�����д�뵽����
-	*  @param:  unsigned char * pData ָ����Ҫд�봮�ڵ����ݻ�����
-	*  @param:  unsigned int length ��Ҫд������ݳ���
-	*  @return: bool  �����Ƿ�ɹ�
-	*  @note:   length��Ҫ����pData��ָ�򻺳����Ĵ�С
+	*  将缓冲区中的数据写入到串口
+	*  @param:  unsigned char * pData 指向需要写入串口的数据缓冲区
+	*  @param:  unsigned int length 需要写入的数据长度
+	*  @return: bool  操作是否成功
+	*  @note:   length不要大于pData所指向缓冲区的大小
 	*  @see:
 	*/
-	bool WriteData(char* pData, unsigned int length);
+	bool WriteData(char* pData, size_t length);
 
-	/** ��ȡ���ڻ������е��ֽ���
+	/** 获取串口缓冲区中的字节数
 	*
 	*
-	*  @return: UINT  �����Ƿ�ɹ�
-	*  @note:   �����ڻ�������������ʱ,����0
+	*  @return: UINT  操作是否成功
+	*  @note:   当串口缓冲区中无数据时,返回0
 	*  @see:
 	*/
 	UINT GetBytesInCOM();
 
-	/** ��ȡ���ڽ��ջ�������һ���ֽڵ�����
+	/** 读取串口接收缓冲区中一个字节的数据
 	*
 	*
-	*  @param:  char & cRecved ��Ŷ�ȡ���ݵ��ַ�����
-	*  @return: bool  ��ȡ�Ƿ�ɹ�
+	*  @param:  char & cRecved 存放读取数据的字符变量
+	*  @return: bool  读取是否成功
 	*  @note:
 	*  @see:
 	*/
 	bool ReadChar(char &cRecved);
-    /* �رմ���
+    /* 关闭串口
     *
     *
-    *  @return: void  �����Ƿ�ɹ�
+    *  @return: void  操作是否成功
     *  @note:
     *  @see:
     */
     void ClosePort();
-	/*�����ַ�������*/
-	void(*dataRecived)(char * recived);
+	/*接受字符串处理*/
 
-private:
 
-    /* �򿪴���
+    /* 打开串口
 	*
 	*
-	*  @param:  UINT portNo �����豸��
-	*  @return: bool  ���Ƿ�ɹ�
+	*  @param:  UINT portNo 串口设备号
+	*  @return: bool  打开是否成功
 	*  @note:
 	*  @see:
 	*/
 	bool openPort(UINT  portNo);
 
-    /* ���ڼ����߳�
+    /* 串口监听线程
 	*
-	*  �������Դ��ڵ����ݺ���Ϣ
-	*  @param:  void * pParam �̲߳���
-	*  @return: UINT WINAPI �̷߳���ֵ
+	*  监听来自串口的数据和信息
+	*  @param:  void * pParam 线程参数
+	*  @return: UINT WINAPI 线程返回值
 	*  @note:
 	*  @see:
 	*/
 	static UINT WINAPI ListenThread(void* pParam);
+	/*z*/
+	void *MainForm;
 
 private:
 
-    /* ���ھ�� */
+
+    /* 串口句柄 */
 	HANDLE  m_hComm;
 
 	int count = 0;
 	int errorcount = 0;
-    /* �߳��˳���־���� */
+    /* 线程退出标志变量 */
 	static bool s_bExit;
 
-    /* �߳̾�� */
+    /* 线程句柄 */
 	volatile HANDLE    m_hListenThread;
 
-    /* ͬ������,�ٽ������� */
-	CRITICAL_SECTION   m_csCommunicationSync;       //!< �����������
+    /* 同步互斥,临界区保护 */
+	CRITICAL_SECTION   m_csCommunicationSync;       //!< 互斥操作串口
 
 };
 
