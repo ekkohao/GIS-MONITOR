@@ -11,15 +11,14 @@ public:
     ~dbcon();
     bool open();
     void close();
-	/**********************
-	*鑾峰彇闇�瑕佸彂閫佺殑鎵嬫満鍙峰垪琛紝鏃犺繑鍥瀎lase
-	***********************/
+    /*获取需要发送的手机号列表，无返回flase*/
 	bool dbcon::get_phonenumbers(QStringList &phoneNumberList);
 private:
-    /*淇濆瓨鏌ヨ璇彞*/
+    /*保存查询语句*/
     QString queries;
-    //string rows[];
+    /*数据库句柄*/
     QSqlDatabase db;
+    /*保存数据库是否链接的状态*/
     bool isopen;
 };
 

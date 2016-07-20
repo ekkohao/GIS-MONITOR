@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>portselect</class>
+ <widget class="QWidget" name="portselect">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>241</width>
+    <height>202</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>选择端口</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="main.qrc">
+    <normaloff>:/main/images/qcom.ICO</normaloff>:/main/images/qcom.ICO</iconset>
+  </property>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>221</width>
+     <height>181</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QListWidget" name="listWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>11</pointsize>
+       </font>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <item>
+       <property name="text">
+        <string>COM1</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>COM2</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>COM3</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>COM4</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>COM5</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>COM6</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>COM7</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>COM8</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>COM9</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>COM10</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>COM11</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>COM12</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>COM13</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>COM14</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>COM15</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="pushButton">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="font">
+       <font>
+        <family>Microsoft YaHei UI</family>
+        <pointsize>12</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>选定端口并打开</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources>
+  <include location="main.qrc"/>
+ </resources>
+ <connections/>
+</ui>
