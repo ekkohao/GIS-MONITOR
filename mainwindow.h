@@ -19,7 +19,10 @@ public:
 	void initWindow();
     void openThePort(unsigned int portNumber);
 	void dataRecievd(char *recievd);
-
+    void Append(const QString &text);
+    void tableAddNewRow(QString &Time,QString &devNum,QString &actionCount,QString &iNum,QString &tem,QString &hum);
+signals:
+    void AppendText(const QString &text);
 private:
     Ui::MainWindow *ui;
     portselect portSelectForm;
@@ -28,6 +31,7 @@ private slots:
     /*打开选择端口界面*/
 	void openPortSelectUISlot();
     void closeThePortSlot();
+    void SlotAppendText(const QString &text);
 };
 
 #endif // MAINWINDOW_H

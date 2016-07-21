@@ -1,0 +1,1 @@
+D:\Qt\5.7\msvc2013\bin\windeployqt.exe GIS-MONITOR.exe

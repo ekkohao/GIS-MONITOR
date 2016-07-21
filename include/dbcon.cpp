@@ -21,12 +21,17 @@ dbcon::dbcon():isopen(false)
 }
 dbcon::~dbcon()
 {
-    db.close();
+    close();
 }
 bool dbcon::open()
 {
     isopen=db.open();
     return isopen;
+}
+void dbcon::close()
+{
+    isopen=false;
+    db.close();
 }
 bool dbcon::get_phonenumbers(QStringList &phoneNumberList)
 {
@@ -38,4 +43,24 @@ bool dbcon::get_phonenumbers(QStringList &phoneNumberList)
         phoneNumberList.append(query.value(0).toString());
     }
 	return !phoneNumberList.isEmpty();
+}
+
+int dbcon::get_dev_id(QString devNum)
+{
+    QSqlQuery query;
+    queries="SELECT dev_id FROM devs WHERE dev_number="+devNum;
+    query.exec(queries);
+    int devId=0;
+    while (query.next()) {
+        devId=query.value(0).toInt();
+    }
+    return devId;
+}
+
+void dbcon::insert_alarm(AlarmInfo &alarm)
+{
+    QSqlQuery query;
+    queries=QString("INSERT INTO alarms(action_time,action_num,i_num,tem,hum,dev_id) VALUES('%1',%2,%3,%4,%5,%6)").arg(alarm.time,QString::number(alarm.actionCount),QString::number(alarm.iNum),alarm.tem,alarm.hum,QString::number(alarm.devId));
+    qDebug()<<queries;
+    query.exec(queries);
 }
