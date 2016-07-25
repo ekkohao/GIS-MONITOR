@@ -24,7 +24,7 @@ public:
     bool get_phonenumbers(QStringList &phoneNumberList);
     /*获取设备id无返回0*/
     int get_dev_id(QString devNum);
-    void insert_alarm(AlarmInfo &alarm);
+    void insert_alarm(AlarmInfo &alarm,int flag);
     /*保存数据库是否链接的状态*/
     bool isopen;
 private:

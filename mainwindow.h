@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include "portselect.h"
 #include "include/serialport.h"
-
+#include "include/dbcon.h"
 namespace Ui {
 class MainWindow;
 }
@@ -17,6 +17,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 	void initWindow();
+    dbcon mydb;
     void openThePort(unsigned int portNumber);
 	void dataRecievd(char *recievd);
     void Append(const QString &text);

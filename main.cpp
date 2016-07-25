@@ -1,19 +1,26 @@
 ﻿#include "mainwindow.h"
 #include <QApplication>
 #include <QTextCodec>
+#include <QString>
+#include <QSharedMemory>
+#include <QMessageBox>
 
 #if _MSC_VER >= 1600
 
 #pragma execution_character_set("utf-8")
 
 #endif
-
+int assumeSingleInstance(const char* program);
 int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
 
 	//qt版本低于qt5
-
+    if(assumeSingleInstance("topo-client.lock") < 0)
+    {
+        QMessageBox::information(NULL, "提示","GIS监测终端已打开");
+        return -1;
+    }
 	#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 
 	//VS版本低于VS2010
@@ -34,4 +41,13 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.show();
     return a.exec();
+}
+int assumeSingleInstance(const char* program)
+{
+    static QSharedMemory shm(program);
+    if(shm.create(100) == false)
+    {
+        return -1;
+    }
+    return 0;
 }

@@ -4,6 +4,11 @@
 #include <QtSql>
 #include <QDebug>
 
+//#define DB_HOST "localhost"
+//#define DB_NAME "gis-database"
+//#define DB_USER "root"
+//#define DB_PASSWD ""
+
 #define DB_HOST "rm-bp1bv2p9m6x3n8fc1.mysql.rds.aliyuncs.com"
 #define DB_NAME "rho93hp8qb"
 #define DB_USER "rho93hp8qb"
@@ -57,10 +62,11 @@ int dbcon::get_dev_id(QString devNum)
     return devId;
 }
 
-void dbcon::insert_alarm(AlarmInfo &alarm)
+void dbcon::insert_alarm(AlarmInfo &alarm,int flag)
 {
     QSqlQuery query;
-    queries=QString("INSERT INTO alarms(action_time,action_num,i_num,tem,hum,dev_id) VALUES('%1',%2,%3,%4,%5,%6)").arg(alarm.time,QString::number(alarm.actionCount),QString::number(alarm.iNum),alarm.tem,alarm.hum,QString::number(alarm.devId));
-    qDebug()<<queries;
+    QString QStraction;
+    QStraction=(flag==1)?"alarms":"histories";
+    queries=QString("INSERT INTO %1(action_time,action_num,i_num,tem,hum,dev_id) VALUES('%2',%3,%4,%5,%6,%7)").arg(QStraction,alarm.time,QString::number(alarm.actionCount),QString::number(alarm.iNum),alarm.tem,alarm.hum,QString::number(alarm.devId));
     query.exec(queries);
 }
