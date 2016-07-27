@@ -2,6 +2,7 @@
 #define PORTSELECT_H
 
 #include <QWidget>
+#include <QStringList>
 
 namespace Ui {
 class portselect;

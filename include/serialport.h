@@ -2,6 +2,7 @@
 #define _SERIALPORT_H_
 
 #include <Windows.h>
+#include <QString.h>
 
 /** 串口通信类
 *
@@ -123,6 +124,7 @@ public:
 	static UINT WINAPI ListenThread(void* pParam);
 	/*z*/
 	void *MainForm;
+    static QString portRestore;
 
 private:
 
