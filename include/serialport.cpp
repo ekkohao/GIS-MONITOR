@@ -8,6 +8,7 @@
 bool CSerialPort::s_bExit = false;
 /** 当串口无数据时,sleep至下次查询间隔的时间,单位:毫秒 */
 const UINT SLEEP_TIME_INTERVAL = 1500;
+QString CSerialPort::portRestore;
 
 CSerialPort::CSerialPort(void):m_hListenThread(INVALID_HANDLE_VALUE)
 {
@@ -29,7 +30,7 @@ CSerialPort::~CSerialPort(void)
 bool CSerialPort::InitPort(UINT portNo /*= 1*/, UINT baud /*= CBR_9600*/, char parity /*= 'N'*/,
 	UINT databits /*= 8*/, UINT stopsbits /*= 1*/, DWORD dwCommEvents /*= EV_RXCHAR*/)
 {
-
+    dwCommEvents=EV_RXCHAR;
 	/** 临时变量,将制定参数转化为字符串形式,以构造DCB结构 */
 	char szDCBparam[50];
 	sprintf_s(szDCBparam, "baud=%d parity=%c data=%d stop=%d", baud, parity, databits, stopsbits);
@@ -243,7 +244,7 @@ UINT WINAPI CSerialPort::ListenThread(void* pParam)
 			Sleep(SLEEP_TIME_INTERVAL);
 			continue;
 		}
-		int i = 0;
+        UINT i = 0;
 		/** 读取输入缓冲区中的数据并输出显示 */
 		char recved[1024];
 		char cRecved = 0x00;

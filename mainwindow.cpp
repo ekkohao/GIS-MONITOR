@@ -79,89 +79,121 @@ void MainWindow::closeThePortSlot()
 
 void MainWindow::dataRecievd(char *recievd)
 {
-    QString QStrreceived=recievd;//2016.07.27
-    CSerialPort::portRestore.append(recievd);
-//    qDebug()<<QStrreceived;
-    while(CSerialPort::portRestore.size()>=77){
-        if(QStrreceived.startsWith("Flag=")&&QStrreceived.contains("Series=")&&QStrreceived.contains("Action=")){
-            char prevW[]="ate0\r\n";
-            int flag=QStrreceived.section(",",0,0).remove("Flag=").toInt();
-    //        qDebug()<<"yy"<<QStrreceived.section(",",0,0).remove("Flag=");
-    //        qDebug()<<"yy"<<flag;
-            QString devNum=QStrreceived.section(",",1,1).remove("Series=");
-            QString actionCount=QStrreceived.section(",",2,2).remove("Action=");
-            QString actionTime=QStrreceived.section(",",3,3).remove("Time=");
-            QString iNum=QStrreceived.section(",",4,4).remove("I=");
-            QString tem=QStrreceived.section(",",5,5).remove("Tem=");
-            QString hum=QStrreceived.section(",",6,6).remove("Hum=").remove("\r\n");
-            QString alarmTime(actionTime);
-            alarmTime.insert(10,":").insert(8,":").insert(6," ").insert(4,"-").insert(2,"-").insert(0,"20");
-            if(flag==1){
-                Append("-----"+QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss")+"-----");
-                Append(QString::fromLocal8Bit("收到设备%1报警，正在处理数据...").arg(devNum));
-
-                if(!mydb.isopen)
-                    mydb.open();
-                if(mydb.isopen){
-                    unsigned int devId=0;
-                    devId=mydb.get_dev_id(devNum);
-                    if(devId==0)
-                        Append(QString::fromLocal8Bit("由于数据库未添加%1设备，添加报警信息到数据库失败").arg(devNum));
+    //qDebug()<<recievd;
+    QString QStrreceived="Flag=0,Series=1234567890,Action=00,Time=001122334455,I=0000,Tem=00.0,Hum=00.0\r\n";
+    int receiveLength=QStrreceived.length();
+    CSerialPort::portRestore.append(recievd).remove("\r\nOK\r\n");
+    //qDebug()<<QStrreceived;
+    while(CSerialPort::portRestore.size()>=receiveLength){
+        if(CSerialPort::portRestore.startsWith("Flag=")){
+            //qDebug()<<"1 "<<CSerialPort::portRestore;
+            QStrreceived.clear();
+            QStrreceived=CSerialPort::portRestore.left(receiveLength);
+            if(QStrreceived.contains("Series=")&&QStrreceived.contains("Action=")&&QStrreceived.contains("Time=")&&QStrreceived.contains("I=")&&QStrreceived.contains("Tem=")&&QStrreceived.contains("Hum=")){
+                char prevW[]="ate0\r\n";
+                //qDebug()<<CSerialPort::portRestore;
+                int flag=QStrreceived.section(",",0,0).remove("Flag=").toInt();
+                QString devNum=QStrreceived.section(",",1,1).remove("Series=");
+                QString actionCount=QStrreceived.section(",",2,2).remove("Action=");
+                QString actionTime=QStrreceived.section(",",3,3).remove("Time=");
+                QString iNum=QStrreceived.section(",",4,4).remove("I=");
+                QString tem=QStrreceived.section(",",5,5).remove("Tem=");
+                QString hum=QStrreceived.section(",",6,6).remove("Hum=").remove("\r\n");
+                QString alarmTime(actionTime);
+                unsigned int devId=0;
+                //QString devPhase=QString::fromLocal8Bit("无");
+                //QString groupLocName=QString::fromLocal8Bit("未绑定杆塔");
+                //QString lineName=QString::fromLocal8Bit("未绑定相位");
+                alarmTime.insert(10,":").insert(8,":").insert(6," ").insert(4,"-").insert(2,"-").insert(0,"20");
+                /*重要*/
+                mydb.reopen();
+                if(flag==1){
+                    Append("-----"+QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss")+"-----");
+                    Append(QString::fromLocal8Bit("收到设备%1报警，正在处理数据...").arg(devNum));
+                    if(mydb.isopen){
+                        devId=mydb.get_dev(devNum);
+                        if(devId==0)
+                            Append(QString::fromLocal8Bit("由于数据库未添加%1设备，添加报警信息到数据库失败").arg(devNum));
+                        else{
+                            AlarmInfo alarm{devId,alarmTime,actionCount.toUInt(),iNum.toUInt(),tem,hum};
+                            mydb.insert_alarm(alarm,flag);
+                        }
+                    }
                     else{
-                        AlarmInfo alarm{devId,alarmTime,actionCount.toUInt(),iNum.toUInt(),tem,hum};
-                        mydb.insert_alarm(alarm,flag);
+                        Append(QString::fromLocal8Bit("数据库连接失败,请检查网络"));
+                    }
+
+                    tableAddNewRow(alarmTime,devNum,actionCount,iNum,tem,hum);
+
+                    actionTime.insert(12,QString::fromLocal8Bit("秒")).insert(10,QString::fromLocal8Bit("分")).insert(8,QString::fromLocal8Bit("时")).insert(6,QString::fromLocal8Bit("日")).insert(4,QString::fromLocal8Bit("月")).insert(2,QString::fromLocal8Bit("年"));
+
+                    QString preW1="AT^SMS=";
+                    QString preW2;
+                    //if(mydb.isopen)
+                        //preW2=QString::fromLocal8Bit(" \"设备%1于20%2发生报警动作，动作次数%3次，泄漏电流%4uA,温度%5℃，湿度%6%").arg(devNum,actionTime,actionCount,iNum,tem,hum)+QString::fromLocal8Bit("，杆塔：")+groupLocName+QString::fromLocal8Bit("，线路：")+lineName+"\"\r\n";
+                    //else
+                    preW2=QString::fromLocal8Bit(" \"设备%1于20%2发生报警动作，动作次数%3次，泄漏电流%4uA,温度%5℃，湿度%6%\"\r\n").arg(devNum,actionTime,actionCount,iNum,tem,hum);
+                    QString preW;
+
+                    QStringList phoneNumberList;
+                    if(mydb.isopen)
+                        mydb.get_phonenumbers(phoneNumberList);
+                    Append(QString::fromLocal8Bit("数据处理完毕"));
+                    if(phoneNumberList.size()<1){
+                        Append(QString::fromLocal8Bit("无发送手机列表"));
+                    }
+                    else{
+                        for(int i=0;i<phoneNumberList.size();i++){
+                            if(phoneNumberList.at(i)=="0")
+                                continue;
+                            ThePort.WriteData(prevW,strlen(prevW));
+                            Sleep(800);
+                            preW.clear();
+                            preW=preW1+phoneNumberList.at(i)+preW2;
+                            qDebug()<<preW;
+                            char readyW[1024];
+                            strcpy(readyW,preW.toLocal8Bit().toStdString().data());
+                            ThePort.WriteData(readyW,strlen(readyW));
+                            Append(QString::fromLocal8Bit("已发送短信至%1").arg(phoneNumberList.at(i)));
+                            Sleep(800);
+                        }
                     }
                 }
                 else{
-                    Append(QString::fromLocal8Bit("数据库连接失败,请检查网络"));
-                }
-
-                tableAddNewRow(alarmTime,devNum,actionCount,iNum,tem,hum);
-
-                actionTime.insert(12,QString::fromLocal8Bit("秒")).insert(10,QString::fromLocal8Bit("分")).insert(8,QString::fromLocal8Bit("时")).insert(6,QString::fromLocal8Bit("日")).insert(4,QString::fromLocal8Bit("月")).insert(2,QString::fromLocal8Bit("年"));
-
-                QString preW1="AT^SMS=";
-                QString preW2=QString::fromLocal8Bit(" \"设备%1于20%2发生报警动作，动作次数%3次，泄漏电流%4uA,温度%5℃，湿度%6%\"\r\n").arg(devNum,actionTime,actionCount,iNum,tem,hum);
-                QString preW;
-
-                QStringList phoneNumberList;
-                if(mydb.isopen)
-                    mydb.get_phonenumbers(phoneNumberList);
-                Append(QString::fromLocal8Bit("数据处理完毕"));
-                if(phoneNumberList.size()<1){
-                    Append(QString::fromLocal8Bit("无发送手机列表"));
-                }
-                else{
-                    for(int i=0;i<phoneNumberList.size();i++){
-                        if(phoneNumberList.at(i)=="0")
-                            continue;
-                        ThePort.WriteData(prevW,strlen(prevW));
-                        Sleep(800);
-                        preW.clear();
-                        preW=preW1+phoneNumberList.at(i)+preW2;
-                        char readyW[1024];
-                        strcpy(readyW,preW.toLocal8Bit().toStdString().data());
-                        ThePort.WriteData(readyW,strlen(readyW));
-                        Append(QString::fromLocal8Bit("已发送短信至%1").arg(phoneNumberList.at(i)));
-                        Sleep(800);
+                    if(mydb.isopen){
+                        devId=mydb.get_dev(devNum);
+                        if(devId==0)
+                            Append(QString::fromLocal8Bit("由于数据库未添加%1设备，添加历史信息到数据库失败").arg(devNum));
+                        else{
+                            AlarmInfo alarm{devId,alarmTime,actionCount.toUInt(),iNum.toUInt(),tem,hum};
+                            mydb.insert_alarm(alarm,flag);
+                        }
+                    }
+                    else{
+                        Append(QString::fromLocal8Bit("数据库连接失败,请检查网络和数据库服务"));
                     }
                 }
+                //qDebug()<<"3 "<<CSerialPort::portRestore;
+                CSerialPort::portRestore.remove(0,receiveLength);
+                //qDebug()<<"4 "<<CSerialPort::portRestore;
             }
             else{
-                if(mydb.isopen){
-                    unsigned int devId=0;
-                    devId=mydb.get_dev_id(devNum);
-                    if(devId==0)
-                        Append(QString::fromLocal8Bit("由于数据库未添加%1设备，添加历史信息到数据库失败").arg(devNum));
-                    else{
-                        AlarmInfo alarm{devId,alarmTime,actionCount.toUInt(),iNum.toUInt(),tem,hum};
-                        mydb.insert_alarm(alarm,flag);
-                    }
-                }
-                else{
-                    Append(QString::fromLocal8Bit("数据库连接失败,请检查网络和数据库服务"));
-                }
+                //qDebug()<<"5 "<<CSerialPort::portRestore;
+                int temp1 = CSerialPort::portRestore.indexOf("Flag=",4);
+                if(temp1<0)
+                    CSerialPort::portRestore.clear();
+                else
+                    CSerialPort::portRestore.remove(0,temp1);
+                //qDebug()<<"6 "<<CSerialPort::portRestore;
             }
+        }
+        else{
+            //qDebug()<<"2 "<<CSerialPort::portRestore;
+            int temp2 = CSerialPort::portRestore.indexOf("Flag=");
+            if(temp2<0)
+                CSerialPort::portRestore.clear();
+            else
+                CSerialPort::portRestore.remove(0,temp2);
         }
     }
 

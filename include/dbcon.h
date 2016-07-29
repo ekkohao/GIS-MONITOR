@@ -20,13 +20,18 @@ public:
     ~dbcon();
     bool open();
     void close();
+    void reopen();
     /*获取需要发送的手机号列表，无返回flase*/
     bool get_phonenumbers(QStringList &phoneNumberList);
     /*获取设备id无返回0*/
-    int get_dev_id(QString devNum);
+    unsigned int get_dev(QString &devNum);
     void insert_alarm(AlarmInfo &alarm,int flag);
     /*保存数据库是否链接的状态*/
     bool isopen;
+    static QString dbHost;
+    static QString dbName;
+    static QString dbUserName;
+    static QString dbPasswd;
 private:
     /*保存查询语句*/
     QString queries;

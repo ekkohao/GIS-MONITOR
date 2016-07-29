@@ -1,0 +1,3 @@
+1.dll文件夹下的dll文件复制到相应的debug或release文件夹下
+2.打包文件夹下dll.bat复制到相应的debug或release文件夹下并执行，用来拉取qt的依赖dll
+3.复制.ini文件到相应的debug或release文件夹下
