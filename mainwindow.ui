@@ -219,6 +219,15 @@
     <string>Alt+C</string>
    </property>
   </action>
+  <action name="closeAppAction">
+   <property name="icon">
+    <iconset resource="main.qrc">
+     <normaloff>:/main/images/X.png</normaloff>:/main/images/X.png</iconset>
+   </property>
+   <property name="text">
+    <string>退出</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>

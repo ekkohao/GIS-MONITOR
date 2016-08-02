@@ -7,6 +7,7 @@
 #include <QDateTime>
 #include <QTableWidget>
 #include <QTableWidgetItem>
+#include <QMessageBox>
 #include "include/dbcon.h"
 #include "portselect.h"
 //#include <QWidget>
@@ -19,11 +20,12 @@
 MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    /*注册信号传递类型*/
+    //注册信号传递类型
     qRegisterMetaType<QVector<int>>("QVector<int>");
+    //初始化函数
 	this->initWindow();
-
-
+    //连接信号与槽
+    this->connect(m_trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),this, SLOT(iconActivatedSlot(QSystemTrayIcon::ActivationReason)));
 	this->connect(ui->openPortAction,SIGNAL(triggered()),this,SLOT(openPortSelectUISlot()));
     this->connect(ui->closePortAction,SIGNAL(triggered()),this,SLOT(closeThePortSlot()));
     this->connect(this,SIGNAL(AppendText(QString)),this,SLOT(SlotAppendText(QString)));
@@ -31,17 +33,31 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),ui(new Ui::MainWind
 
 MainWindow::~MainWindow()
 {
+    delete m_trayIconMenu;
+    delete m_trayIcon;
     delete ui;
+
 }
 
 void MainWindow::initWindow()
 {
+    //将this指针给到ThePort
 	ThePort.MainForm=this;
+    //检查数据库连接
     if(!mydb.isopen)
         ui->statusBar->showMessage(QString::fromLocal8Bit("数据库连接失败，请检查连接"), 30000);
     else
         ui->statusBar->showMessage(QString::fromLocal8Bit("数据库连接成功"), 3000);
-	/**************************/
+    //设置通知栏右键菜单
+    m_trayIconMenu = new QMenu(this);
+    m_trayIconMenu->addAction(ui->closeAppAction);
+    //设置通知栏图标
+    m_trayIcon = new QSystemTrayIcon(this);
+    m_trayIcon->setIcon(QIcon(":/main/images/main.ico"));
+    m_trayIcon->setToolTip(QString::fromLocal8Bit("GIS监测终端"));
+    m_trayIcon->setContextMenu(m_trayIconMenu);
+    m_trayIcon->show();
+
 }
 
 void MainWindow::openPortSelectUISlot()
@@ -217,4 +233,23 @@ void MainWindow::tableAddNewRow(QString &Time,QString &devNum,QString &actionCou
     ui->tableWidget->setItem(rowCount,3,new QTableWidgetItem(tem));
     ui->tableWidget->setItem(rowCount,4,new QTableWidgetItem(hum));
     //ui->tableWidget->resizeColumnsToContents();
+}
+void MainWindow::iconActivatedSlot(QSystemTrayIcon::ActivationReason reason)
+{
+    switch(reason)
+    {
+    case QSystemTrayIcon::Trigger :
+        this->hide();
+        break;
+    case QSystemTrayIcon::DoubleClick:
+        this->show();
+        break;
+    default:
+        break;
+    }
+}
+
+void MainWindow::on_closeAppAction_triggered()
+{
+    exit(0);
 }

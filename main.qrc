@@ -15,5 +15,10 @@
         <file>images/stop.png</file>
         <file>images/write2file.png</file>
         <file>images/main.ico</file>
+        <file>images/0.png</file>
+        <file>images/0-1.png</file>
+        <file>images/mini.png</file>
+        <file>images/monitor.png</file>
+        <file>images/X.png</file>
     </qresource>
 </RCC>
