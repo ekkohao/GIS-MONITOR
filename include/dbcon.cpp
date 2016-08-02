@@ -21,11 +21,10 @@ dbcon::dbcon():isopen(false)
 {
     QSettings configIniRead("monitor.ini", QSettings::IniFormat);
     //将读取到的ini文件保存在QString中，先取值，然后通过toString()函数转换成QString类型
-    dbcon::dbHost = (configIniRead.value("/DateBase/DB_HOST","localhost").toString()=="000")?"rm-bp1bv2p9m6x3n8fc1.mysql.rds.aliyuncs.com":dbcon::dbHost;
-    dbcon::dbName = (configIniRead.value("/DateBase/DB_NAME","gis-database").toString()=="000")?"rho93hp8qb":dbcon::dbName;
-    dbcon::dbUserName = (configIniRead.value("/DateBase/DB_USER","root").toString()=="000")?"rho93hp8qb":dbcon::dbUserName;
-    dbcon::dbPasswd = (configIniRead.value("/DateBase/DB_PASSWD","").toString()=="000")?"HFkeding1994":dbcon::dbPasswd;
-
+    dbcon::dbHost = (configIniRead.value("/DateBase/DB_HOST","localhost").toString()=="000")?"rm-bp1bv2p9m6x3n8fc1.mysql.rds.aliyuncs.com":configIniRead.value("/DateBase/DB_HOST","localhost").toString();
+    dbcon::dbName = (configIniRead.value("/DateBase/DB_NAME","gis-database").toString()=="000")?"rho93hp8qb":configIniRead.value("/DateBase/DB_NAME","gis-database").toString();
+    dbcon::dbUserName = (configIniRead.value("/DateBase/DB_USER","root").toString()=="000")?"rho93hp8qb":configIniRead.value("/DateBase/DB_USER","root").toString();
+    dbcon::dbPasswd = (configIniRead.value("/DateBase/DB_PASSWD","").toString()=="000")?"HFkeding1994":configIniRead.value("/DateBase/DB_PASSWD","").toString();
     db = QSqlDatabase::addDatabase("QMYSQL");
     db.setHostName(dbcon::dbHost);
     db.setDatabaseName(dbcon::dbName);
@@ -45,8 +44,12 @@ bool dbcon::open()
 }
 void dbcon::reopen()
 {
-    if(!db.isOpen())
-        isopen=db.open();
+    QString testOnBorrowSql("SELECT 1+1 ");
+
+    QSqlQuery query(testOnBorrowSql, db);
+
+    if (query.lastError().type() != QSqlError::NoError)
+        open();
 }
 void dbcon::close()
 {

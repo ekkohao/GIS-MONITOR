@@ -150,7 +150,7 @@ void MainWindow::dataRecievd(char *recievd)
                             Sleep(800);
                             preW.clear();
                             preW=preW1+phoneNumberList.at(i)+preW2;
-                            qDebug()<<preW;
+                            //qDebug()<<preW;
                             char readyW[1024];
                             strcpy(readyW,preW.toLocal8Bit().toStdString().data());
                             ThePort.WriteData(readyW,strlen(readyW));
