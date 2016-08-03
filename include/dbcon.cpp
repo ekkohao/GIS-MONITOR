@@ -44,12 +44,9 @@ bool dbcon::open()
 }
 void dbcon::reopen()
 {
-    QString testOnBorrowSql("SELECT 1+1 ");
-
-    QSqlQuery query(testOnBorrowSql, db);
-
-    if (query.lastError().type() != QSqlError::NoError)
-        open();
+    QSqlQuery query;
+    if (!query.exec("SELECT 1+1"))
+        isopen=db.open();
 }
 void dbcon::close()
 {

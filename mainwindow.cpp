@@ -253,3 +253,4 @@ void MainWindow::on_closeAppAction_triggered()
 {
     exit(0);
 }
+
