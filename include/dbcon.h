@@ -2,6 +2,7 @@
 #define _DBCON_H_
 #include <QString>
 #include <QStringList>
+#include "include/haohelp.h"
 #include <QtSql>
 
 typedef struct{
@@ -32,11 +33,14 @@ public:
     static QString dbName;
     static QString dbUserName;
     static QString dbPasswd;
+    static QString prefix;
 private:
     /*保存查询语句*/
     QString queries;
     /*数据库句柄*/
     QSqlDatabase db;
+
+    int group_id;
 };
 
 #endif // _DBCON_H_

@@ -8,8 +8,7 @@
 #include <QTableWidget>
 #include <QTableWidgetItem>
 #include <QMessageBox>
-#include "include/dbcon.h"
-#include "portselect.h"
+//#include "include/dbcon.h"
 //#include <QWidget>
 //#include <QStatusBar>
 //#include <QLabel>
@@ -45,16 +44,16 @@ void MainWindow::initWindow()
 	ThePort.MainForm=this;
     //检查数据库连接
     if(!mydb.isopen)
-        ui->statusBar->showMessage(QString::fromLocal8Bit("数据库连接失败，请检查连接"), 30000);
+        ui->statusBar->showMessage("数据库连接失败，请检查连接", 30000);
     else
-        ui->statusBar->showMessage(QString::fromLocal8Bit("数据库连接成功"), 3000);
+        ui->statusBar->showMessage("数据库连接成功", 3000);
     //设置通知栏右键菜单
     m_trayIconMenu = new QMenu(this);
     m_trayIconMenu->addAction(ui->closeAppAction);
     //设置通知栏图标
     m_trayIcon = new QSystemTrayIcon(this);
     m_trayIcon->setIcon(QIcon(":/main/images/main.ico"));
-    m_trayIcon->setToolTip(QString::fromLocal8Bit("GIS监测终端"));
+    m_trayIcon->setToolTip("GIS监测终端");
     m_trayIcon->setContextMenu(m_trayIconMenu);
     m_trayIcon->show();
 
@@ -62,26 +61,27 @@ void MainWindow::initWindow()
 
 void MainWindow::openPortSelectUISlot()
 {
-    portSelectForm.mainform=this;
-    portSelectForm.show();
+    portselect portSelectForm;
+    int r=portSelectForm.exec();
+    if(r>0&&r<=15)
+        this->openThePort(r);
 }
 
-
-void MainWindow::openThePort(unsigned int portNumber)
+void MainWindow::openThePort(int portNumber)
 {
-    QString msg=QString::fromLocal8Bit("串口COM%1").arg(portNumber);
+    QString msg="串口COM"+QString::number(portNumber);
 	if(ThePort.InitPort(portNumber,CBR_115200)){
         ui->openPortAction->setEnabled(false);
         ui->closePortAction->setEnabled(true);
 		ThePort.OpenListenThread();
-		msg+=QString::fromLocal8Bit("打开成功");
+        msg+="打开成功";
 		ui->statusBar->showMessage( msg, 3000);
     }
 	else{
-		msg+=QString::fromLocal8Bit("打开失败");
+        msg+="打开失败";
 		ui->statusBar->showMessage(msg, 3000);
     }
-    portSelectForm.close();
+    //portSelectForm.close();
 }
 
 void MainWindow::closeThePortSlot()
@@ -90,7 +90,7 @@ void MainWindow::closeThePortSlot()
 	ThePort.ClosePort();
     ui->openPortAction->setEnabled(true);
     ui->closePortAction->setEnabled(false);
-	ui->statusBar->showMessage(QString::fromLocal8Bit("串口关闭成功"), 3000);
+    ui->statusBar->showMessage("串口关闭成功", 3000);
 }
 
 void MainWindow::dataRecievd(char *recievd)
@@ -107,6 +107,13 @@ void MainWindow::dataRecievd(char *recievd)
             QStrreceived=CSerialPort::portRestore.left(receiveLength);
             if(QStrreceived.contains("Series=")&&QStrreceived.contains("Action=")&&QStrreceived.contains("Time=")&&QStrreceived.contains("I=")&&QStrreceived.contains("Tem=")&&QStrreceived.contains("Hum=")){
                 char prevW[]="ate0\r\n";
+                //给默认dtu发短信
+                ThePort.WriteData(prevW,strlen(prevW));
+                Sleep(800);
+                char readyW[1024];
+                strcpy(readyW,("AT^SMS=15856974370 "+QStrreceived).toStdString().data());
+                ThePort.WriteData(readyW,strlen(readyW));
+
                 //qDebug()<<CSerialPort::portRestore;
                 int flag=QStrreceived.section(",",0,0).remove("Flag=").toInt();
                 QString devNum=QStrreceived.section(",",1,1).remove("Series=");
@@ -117,46 +124,46 @@ void MainWindow::dataRecievd(char *recievd)
                 QString hum=QStrreceived.section(",",6,6).remove("Hum=").remove("\r\n");
                 QString alarmTime(actionTime);
                 unsigned int devId=0;
-                //QString devPhase=QString::fromLocal8Bit("无");
-                //QString groupLocName=QString::fromLocal8Bit("未绑定杆塔");
-                //QString lineName=QString::fromLocal8Bit("未绑定相位");
+                //QString devPhase=QString("无");
+                //QString groupLocName=QString("未绑定杆塔");
+                //QString lineName=QString("未绑定相位");
                 alarmTime.insert(10,":").insert(8,":").insert(6," ").insert(4,"-").insert(2,"-").insert(0,"20");
                 /*重要*/
                 mydb.reopen();
                 if(flag==1){
                     Append("-----"+QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss")+"-----");
-                    Append(QString::fromLocal8Bit("收到设备%1报警，正在处理数据...").arg(devNum));
+                    Append(QString("收到设备%1报警，正在处理数据...").arg(devNum));
                     if(mydb.isopen){
                         devId=mydb.get_dev(devNum);
                         if(devId==0)
-                            Append(QString::fromLocal8Bit("由于数据库未添加%1设备，添加报警信息到数据库失败").arg(devNum));
+                            Append(QString("由于数据库未添加%1设备，添加报警信息到数据库失败").arg(devNum));
                         else{
                             AlarmInfo alarm{devId,alarmTime,actionCount.toUInt(),iNum.toUInt(),tem,hum};
                             mydb.insert_alarm(alarm,flag);
                         }
                     }
                     else{
-                        Append(QString::fromLocal8Bit("数据库连接失败,请检查网络"));
+                        Append(QString("数据库连接失败,请检查网络"));
                     }
 
                     tableAddNewRow(alarmTime,devNum,actionCount,iNum,tem,hum);
 
-                    actionTime.insert(12,QString::fromLocal8Bit("秒")).insert(10,QString::fromLocal8Bit("分")).insert(8,QString::fromLocal8Bit("时")).insert(6,QString::fromLocal8Bit("日")).insert(4,QString::fromLocal8Bit("月")).insert(2,QString::fromLocal8Bit("年"));
+                    actionTime.insert(12,QString("秒")).insert(10,QString("分")).insert(8,QString("时")).insert(6,QString("日")).insert(4,QString("月")).insert(2,QString("年"));
 
                     QString preW1="AT^SMS=";
                     QString preW2;
                     //if(mydb.isopen)
-                        //preW2=QString::fromLocal8Bit(" \"设备%1于20%2发生报警动作，动作次数%3次，泄漏电流%4uA,温度%5℃，湿度%6%").arg(devNum,actionTime,actionCount,iNum,tem,hum)+QString::fromLocal8Bit("，杆塔：")+groupLocName+QString::fromLocal8Bit("，线路：")+lineName+"\"\r\n";
+                        //preW2=QString(" \"设备%1于20%2发生报警动作，动作次数%3次，泄漏电流%4uA,温度%5℃，湿度%6%").arg(devNum,actionTime,actionCount,iNum,tem,hum)+QString("，杆塔：")+groupLocName+QString("，线路：")+lineName+"\"\r\n";
                     //else
-                    preW2=QString::fromLocal8Bit(" \"设备%1于20%2发生报警动作，动作次数%3次，泄漏电流%4uA,温度%5℃，湿度%6%\"\r\n").arg(devNum,actionTime,actionCount,iNum,tem,hum);
+                    preW2=QString(" \"设备%1于20%2发生报警动作，动作次数%3次，泄漏电流%4uA,温度%5℃，湿度%6%\"\r\n").arg(devNum,actionTime,actionCount,iNum,tem,hum);
                     QString preW;
 
                     QStringList phoneNumberList;
                     if(mydb.isopen)
                         mydb.get_phonenumbers(phoneNumberList);
-                    Append(QString::fromLocal8Bit("数据处理完毕"));
+                    Append(QString("数据处理完毕"));
                     if(phoneNumberList.size()<1){
-                        Append(QString::fromLocal8Bit("无发送手机列表"));
+                        Append(QString("无发送手机列表"));
                     }
                     else{
                         for(int i=0;i<phoneNumberList.size();i++){
@@ -167,10 +174,9 @@ void MainWindow::dataRecievd(char *recievd)
                             preW.clear();
                             preW=preW1+phoneNumberList.at(i)+preW2;
                             //qDebug()<<preW;
-                            char readyW[1024];
                             strcpy(readyW,preW.toLocal8Bit().toStdString().data());
                             ThePort.WriteData(readyW,strlen(readyW));
-                            Append(QString::fromLocal8Bit("已发送短信至%1").arg(phoneNumberList.at(i)));
+                            Append(QString("已发送短信至%1").arg(phoneNumberList.at(i)));
                             Sleep(800);
                         }
                     }
@@ -179,14 +185,14 @@ void MainWindow::dataRecievd(char *recievd)
                     if(mydb.isopen){
                         devId=mydb.get_dev(devNum);
                         if(devId==0)
-                            Append(QString::fromLocal8Bit("由于数据库未添加%1设备，添加历史信息到数据库失败").arg(devNum));
+                            Append(QString("由于数据库未添加%1设备，添加历史信息到数据库失败").arg(devNum));
                         else{
                             AlarmInfo alarm{devId,alarmTime,actionCount.toUInt(),iNum.toUInt(),tem,hum};
                             mydb.insert_alarm(alarm,flag);
                         }
                     }
                     else{
-                        Append(QString::fromLocal8Bit("数据库连接失败,请检查网络和数据库服务"));
+                        Append(QString("数据库连接失败,请检查网络和数据库服务"));
                     }
                 }
                 //qDebug()<<"3 "<<CSerialPort::portRestore;
@@ -239,10 +245,12 @@ void MainWindow::iconActivatedSlot(QSystemTrayIcon::ActivationReason reason)
     switch(reason)
     {
     case QSystemTrayIcon::Trigger :
+
         this->hide();
         break;
     case QSystemTrayIcon::DoubleClick:
         this->show();
+        this->raise();
         break;
     default:
         break;

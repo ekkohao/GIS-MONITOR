@@ -3,13 +3,13 @@
 #include <Windows.h>
 #include <QString>
 #include <QListWidget>
-#include "mainwindow.h"
 
 portselect::portselect(QWidget *parent) :
-    QWidget(parent),
+    QDialog(parent),
     ui(new Ui::portselect)
 {
     ui->setupUi(this);
+    this->setWindowFlags(Qt::WindowCloseButtonHint);
 }
 
 portselect::~portselect()
@@ -26,6 +26,7 @@ void portselect::on_pushButton_clicked()
 {
     QString comQStr(ui->listWidget->currentItem()->text());
     int portNum=comQStr.remove(0,3).toInt();
-    MainWindow *w=(MainWindow *)mainform;
-    w->openThePort(portNum);
+    this->done(portNum);
+    this->close();
+
 }

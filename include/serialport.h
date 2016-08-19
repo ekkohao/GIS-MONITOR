@@ -3,6 +3,7 @@
 
 #include <Windows.h>
 #include <QString.h>
+#include "include/haohelp.h"
 
 /** 串口通信类
 *

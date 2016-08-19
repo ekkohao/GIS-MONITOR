@@ -3,9 +3,11 @@
 #include <QMenu>
 #include <QMainWindow>
 #include <QSystemTrayIcon>
-#include "portselect.h"
 #include "include/serialport.h"
 #include "include/dbcon.h"
+#include "include/haohelp.h"
+#include "portselect.h"
+
 namespace Ui {
 class MainWindow;
 }
@@ -19,7 +21,7 @@ public:
     ~MainWindow();
 	void initWindow();
     dbcon mydb;
-    void openThePort(unsigned int portNumber);
+    void openThePort(int portNumber);
 	void dataRecievd(char *recievd);
     void Append(const QString &text);
     void tableAddNewRow(QString &Time,QString &devNum,QString &actionCount,QString &iNum,QString &tem,QString &hum);
@@ -29,7 +31,7 @@ private:
     QSystemTrayIcon *m_trayIcon;
     QMenu *m_trayIconMenu;
     Ui::MainWindow *ui;
-    portselect portSelectForm;
+    //portselect portSelectForm;
 	CSerialPort ThePort;
 private slots:
     void iconActivatedSlot(QSystemTrayIcon::ActivationReason reason);

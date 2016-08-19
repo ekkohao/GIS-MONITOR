@@ -25,7 +25,8 @@ HEADERS  += mainwindow.h \
     include/stdafx.h \
     include/targetver.h \
     include/serialport.h \
-    portselect.h
+    portselect.h \
+    include/haohelp.h
 
 FORMS    += mainwindow.ui \
     portselect.ui
